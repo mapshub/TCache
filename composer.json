@@ -1,0 +1,22 @@
+{
+    "name": "mapshub/TCache",
+    "description": "Library that provides caching table data for fast search and indexing",
+    "keywords": ["cache", "caching", "storage", "mongo", "fast search"],
+    "homepage": "http://github.com/mapshub/TCache",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Gertsiy Dmitriy",
+            "email": "guertsy@mail.ru"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0"
+    },
+    "autoload": {
+        "psr-0": {
+            "TCache": "src"
+        }
+    }
+}
