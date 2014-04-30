@@ -1,5 +1,5 @@
 {
-    "name": "mapshub/TCache",
+    "name": "mapshub/t-cache",
     "description": "Library that provides caching table data for fast search and indexing",
     "keywords": ["cache", "caching", "storage", "mongo", "fast search"],
     "homepage": "http://github.com/mapshub/TCache",
