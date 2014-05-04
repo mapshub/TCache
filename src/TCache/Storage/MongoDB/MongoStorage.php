@@ -169,7 +169,9 @@ class MongoStorage extends AbstractStorage
 
         $qr = [];
         if (!empty($ids)) {
-            $qr['id'] = ['$in' => $ids];
+            $qr['id'] = ['$in' => array_map(function ($v) {
+                return (string)$v;
+            }, $ids)];
         }
         if (!empty($values)) {
             $c = [];
@@ -185,9 +187,11 @@ class MongoStorage extends AbstractStorage
                 $tmp = null;
                 if (is_array($item_values)) {
                     if (count($item_values) > 1) {
-                        $tmp = ['$in' => $item_values];
+                        $tmp = ['$in' => array_map(function ($v) {
+                            return (string)$v;
+                        }, $item_values)];
                     } else {
-                        $tmp = $item_values[0];
+                        $tmp = (string)$item_values[0];
                     }
                 }
                 if (!is_null($tmp)) {
