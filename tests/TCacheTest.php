@@ -261,7 +261,6 @@ class TCacheTest extends \PHPUnit_Framework_TestCase
         foreach ($items->find() as $item) {
             $this->assertArrayNotHasKey("sex", $item);
         }
-
     }
 }
  

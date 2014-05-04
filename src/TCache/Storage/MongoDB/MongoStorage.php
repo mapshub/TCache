@@ -44,6 +44,7 @@ class MongoStorage extends AbstractStorage
     /** @ret ['sid', 'class'] */
     public function createCriteria($id, $warmupClass)
     {
+        $id = (string)$id;
         /*
         $colName = $this->getCache()->getName() . "_items";
         $this->getDb()->selectCollection($colName)->ensureIndex([$id => 1], ['name' => $id . "_index"]);
@@ -55,6 +56,8 @@ class MongoStorage extends AbstractStorage
 
     public function dropCriteria($id)
     {
+        $id = (string)$id;
+
         /*
         $colName = $this->getCache()->getName() . "_items";
         $this->getDb()->selectCollection($colName)->deleteIndex($id . "_index");
@@ -67,22 +70,29 @@ class MongoStorage extends AbstractStorage
     /** @ret ['criteria_id', 'sid', 'text'] */
     public function getValuesList($criteria_id)
     {
+        $criteria_id = (string)$criteria_id;
         return $this->getDb()->TCacheValues->find(['cache_name' => $this->getCache()->getName(), 'criteria_id' => $criteria_id]);
     }
 
     public function createValue($criteria_id, $value_sid, $value_text)
     {
+        $criteria_id = (string)$criteria_id;
+        $value_sid = (string)$value_sid;
+        $value_text = (string)$value_text;
         $this->getDb()->TCacheValues->insert(['cache_name' => $this->getCache()->getName(), 'criteria_id' => $criteria_id, 'sid' => $value_sid, 'text' => $value_text]);
         return $this->getDb()->TCacheValues->findOne(['cache_name' => $this->getCache()->getName(), 'criteria_id' => $criteria_id, 'sid' => $value_sid]);
     }
 
     public function dropValue($criteria_id, $value_sid)
     {
+        $criteria_id = (string)$criteria_id;
+        $value_sid = (string)$value_sid;
         $this->getDb()->TCacheValues->remove(['cache_name' => $this->getCache()->getName(), 'criteria_id' => $criteria_id, 'sid' => $value_sid]);
     }
 
     public function addItem($item_id, $attributes)
     {
+        $item_id = (string)$item_id;
         $item = ['id' => $item_id, 'attr' => $attributes];
 
         foreach ($this->getCache()->getCriterias()->getAll() as $nextCriteria) {
@@ -119,6 +129,7 @@ class MongoStorage extends AbstractStorage
 
     public function addJob($id, $attr)
     {
+        $id = (string)$id;
         $this->getDb()->TCacheJobs->insert(['cache_name' => $this->getCache()->getName(), 'job' => $id, 'attr' => $attr]);
     }
 
