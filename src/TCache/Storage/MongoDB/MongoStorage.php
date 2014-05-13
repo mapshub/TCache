@@ -80,10 +80,12 @@ class MongoStorage extends AbstractStorage
         $qr = $this->qrBuild($values, $ids);
         $colName = $this->getCache()->getName() . "_items";
         $aggr = [
-            ['$match' => $qr],
             ['$project' => ['sid' => '$' . $criteria_id, 'tcache_count' => ['$add' => 1]]],
             ['$group' => ['_id' => '$sid', 'countItems' => ['$sum' => '$tcache_count']]]
         ];
+        if (!empty($qr)) {
+            array_unshift($aggr, ['$match' => $qr]);
+        }
         $result = $this->getDb()->selectCollection($colName)->aggregate($aggr);
         if (isset($result['result'])) {
             $found = array_map(function ($item) {

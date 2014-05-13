@@ -284,6 +284,10 @@ class TCacheTest extends \PHPUnit_Framework_TestCase
         }
 
         $male = $sex->getValues()->get('M');
+        $namesList = $name->getValues()->aggregateBy();
+
+        print_r($namesList);
+
         $namesList = $name->getValues()->aggregateBy([$male]);
 
         print_r($namesList);
