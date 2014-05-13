@@ -46,6 +46,11 @@ class Values
         return $this->list;
     }
 
+    public function aggregateBy($query = [], $ids = [])
+    {
+        return $this->getCriteria()->getCache()->getStorage()->getValuesAggregation($this->getCriteria()->getSid(), $query, $ids);
+    }
+
     /**
      * @param $sid
      * @return Criteria\Values\Value

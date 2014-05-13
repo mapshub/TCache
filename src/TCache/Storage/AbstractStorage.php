@@ -29,6 +29,8 @@ abstract class AbstractStorage
 
     abstract public function getValuesList($criteria_id);
 
+    abstract public function getValuesAggregation($criteria_id, $query = [], $ids = []);
+
     /** @ret ['criteria_id', 'sid', 'text'] */
     abstract public function createValue($criteria_id, $value_sid, $value_text);
 

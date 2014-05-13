@@ -74,6 +74,27 @@ class MongoStorage extends AbstractStorage
         return $this->getDb()->TCacheValues->find(['cache_name' => $this->getCache()->getName(), 'criteria_id' => $criteria_id]);
     }
 
+    public function getValuesAggregation($criteria_id, $values = [], $ids = [])
+    {
+        $found = [];
+        $qr = $this->qrBuild($values, $ids);
+        $colName = $this->getCache()->getName() . "_items";
+        $aggr = [
+            ['$match' => $qr],
+            ['$project' => ['sid' => '$' . $criteria_id, 'tcache_count' => ['$add' => 1]]],
+            ['$group' => ['_id' => '$sid', 'countItems' => ['$sum' => '$tcache_count']]]
+        ];
+        $result = $this->getDb()->selectCollection($colName)->aggregate($aggr);
+        if (isset($result['result'])) {
+            $found = array_map(function ($item) {
+                $item['sid'] = $item['_id'];
+                unset($item['_id']);
+                return $item;
+            }, $result['result']);
+        }
+        return $found;
+    }
+
     public function createValue($criteria_id, $value_sid, $value_text)
     {
         $criteria_id = (string)$criteria_id;

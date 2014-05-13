@@ -262,5 +262,31 @@ class TCacheTest extends \PHPUnit_Framework_TestCase
             $this->assertArrayNotHasKey("sex", $item);
         }
     }
+
+    public function testGetDistinctCriteriaValuesWithQuery()
+    {
+        $cache = $this->getCache()->setName("test_17");
+        $cache->dropAll();
+        $sex = $cache->getCriterias()->add("sex");
+        $name = $cache->getCriterias()->add("name");
+
+        $items = $cache->getItems();
+        $items->add('m101', ['sex' => 'M', 'sex_text' => 'Male', 'name' => 'Jo', 'country' => 'china']);
+        $items->add('m101-1', ['sex' => 'M', 'sex_text' => 'Male', 'name' => 'Jo', 'country' => 'china']);
+        $items->add('m101-2', ['sex' => 'M', 'sex_text' => 'Male', 'name' => 'Jo', 'country' => 'china']);
+        $items->add('m102', ['sex' => 'M', 'sex_text' => 'Male', 'name' => 'Li', 'country' => 'china']);
+        $items->add('m103', ['sex' => 'F', 'sex_text' => 'Female', 'name' => 'Mae', 'country' => 'hong kong']);
+
+        $cache->getJobs()->makeAll();
+
+        foreach ($items->find() as $item) {
+            //print_r($item);
+        }
+
+        $male = $sex->getValues()->get('M');
+        $namesList = $name->getValues()->aggregateBy([$male]);
+
+        print_r($namesList);
+    }
 }
  
