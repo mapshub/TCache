@@ -55,6 +55,8 @@ class ValuesBuilder
 
         if (!is_null($value_key) && !is_null($text_key)) {
             $value = ['id' => $this->castValueSid($item[$value_key]), 'text' => $this->castValueText($item[$text_key])];
+        } else {
+            throw new \Exception("item value key not found!");
         }
 
         return $value;
