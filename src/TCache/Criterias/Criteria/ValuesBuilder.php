@@ -9,10 +9,25 @@ class ValuesBuilder
 {
     /** @var  Criteria */
     private $criteria;
+    private $numconverter = null;
 
     function __construct($criteria)
     {
         $this->criteria = $criteria;
+    }
+
+    /**
+     * @return \NumberFormatter
+     */
+    private function getNumconverter()
+    {
+        if (is_null($this->numconverter)) {
+            $this->numconverter = \NumberFormatter::create('ru', \NumberFormatter::DECIMAL);
+            $this->numconverter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, 0);
+            $this->numconverter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, 100);
+        }
+
+        return $this->numconverter;
     }
 
     public function getValueByItem($item)
@@ -38,11 +53,28 @@ class ValuesBuilder
             }
         }
 
-
         if (!is_null($value_key) && !is_null($text_key)) {
-            $value = ['id' => $item[$value_key], 'text' => $item[$text_key]];
+            $value = ['id' => $this->castValueSid($item[$value_key]), 'text' => $this->castValueText($item[$text_key])];
         }
 
         return $value;
+    }
+
+    public function castValueSid($id)
+    {
+        echo "(" . gettype($id) . ")" . $id . "=>";
+        if (gettype($id) == "double") {
+            $id = $this->getNumconverter()->format($id);
+        } else {
+            settype($id, "string");
+        }
+        echo "(" . gettype($id) . ")" . $id . "\n";
+        return $id;
+    }
+
+    public function castValueText($text)
+    {
+        settype($text, "string");
+        return $text;
     }
 } 

@@ -120,7 +120,10 @@ class TCacheTest extends \PHPUnit_Framework_TestCase
         $female = $values->add("F", "Female");
 
         $this->assertEquals(2, count($this->getCache()->setName("test_9")->getCriterias()->add("sex")->getValues()->getAll()));
-        $values = $this->getCache()->setName("test_9")->getCriterias()->add("sex")->getValues();
+        $sex = $this->getCache()->setName("test_9")->getCriterias()->add("sex");
+        $sex->getValuesBuilder();
+        $values = $sex->getValues();
+
         $this->assertEquals($male, $values->get('M'));
         $this->assertEquals($female, $values->get('F'));
     }
@@ -269,13 +272,15 @@ class TCacheTest extends \PHPUnit_Framework_TestCase
         $cache->dropAll();
         $sex = $cache->getCriterias()->add("sex");
         $name = $cache->getCriterias()->add("name");
+        $name = $cache->getCriterias()->add("count");
 
         $items = $cache->getItems();
-        $items->add('m101', ['sex' => 'M', 'sex_text' => 'Male', 'name' => 'Jo', 'country' => 'china']);
-        $items->add('m101-1', ['sex' => 'M', 'sex_text' => 'Male', 'name' => 'Jo', 'country' => 'china']);
-        $items->add('m101-2', ['sex' => 'M', 'sex_text' => 'Male', 'name' => 'Jo', 'country' => 'china']);
-        $items->add('m102', ['sex' => 'M', 'sex_text' => 'Male', 'name' => 'Li', 'country' => 'china']);
+        $items->add('m101', ['sex' => 'M', 'sex_text' => 'Male', 'name' => 'Jo', 'country' => 'china', 'count' => 0.1 + 0.7]);
+        $items->add('m101-1', ['sex' => 'M', 'sex_text' => 'Male', 'name' => 'Jo', 'country' => 'china', 'count' => ceil(2458 / 100) / 10]);
+        $items->add('m101-2', ['sex' => 'M', 'sex_text' => 'Male', 'name' => 'Jo', 'country' => 'china', 'count' => (0.1 + 0.7) * 10]);
+        $items->add('m102', ['sex' => 'M', 'sex_text' => 'Male', 'name' => 'Li', 'country' => 'china', 'count' => 10 / 300000000]);
         $items->add('m103', ['sex' => 'F', 'sex_text' => 'Female', 'name' => 'Mae', 'country' => 'hong kong']);
+
 
         $cache->getJobs()->makeAll();
 
@@ -291,6 +296,30 @@ class TCacheTest extends \PHPUnit_Framework_TestCase
         $namesList = $name->getValues()->aggregateBy([$male]);
 
         print_r($namesList);
+    }
+
+    public function testCustomWarmup()
+    {
+        $cache = $this->getCache()->setName("test_18");
+        $cache->dropAll();
+        $sex = $cache->getCriterias()->add("sex");
+        $name = $cache->getCriterias()->add("name");
+        $count = $cache->getCriterias()->add("count", '\TCacheTest\CountValueBuilder');
+
+        $items = $cache->getItems();
+        $items->add('m101', ['sex' => 'M', 'sex_text' => 'Male', 'name' => 'Jo', 'country' => 'china', 'count' => 0.1 + 0.7]);
+        $items->add('m101-1', ['sex' => 'M', 'sex_text' => 'Male', 'name' => 'Jo', 'country' => 'china', 'count' => ceil(2458 / 100) / 10]);
+        $items->add('m101-2', ['sex' => 'M', 'sex_text' => 'Male', 'name' => 'Jo', 'country' => 'china', 'count' => (0.1 + 0.7) * 10]);
+        $items->add('m102', ['sex' => 'M', 'sex_text' => 'Male', 'name' => 'Li', 'country' => 'china', 'count' => 10 / 300000000]);
+        $items->add('m103', ['sex' => 'F', 'sex_text' => 'Female', 'name' => 'Mae', 'country' => 'hong kong', 'count' => "791,900003"]);
+
+
+        $cache->getJobs()->makeAll();
+
+        foreach ($count->getValues()->getAll() as $value) {
+            var_dump([$value->getSid(), $value->getText()]);
+        }
+
     }
 }
  

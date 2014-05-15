@@ -51,7 +51,9 @@ class Criteria
 
     public function getValuesBuilderClass()
     {
-        $this->valuesBuilderClass = 'TCache\Criterias\Criteria\ValuesBuilder';
+        if ($this->valuesBuilderClass == "default") {
+            $this->valuesBuilderClass = 'TCache\Criterias\Criteria\ValuesBuilder';
+        }
         return $this->valuesBuilderClass;
     }
 

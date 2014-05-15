@@ -45,10 +45,6 @@ class MongoStorage extends AbstractStorage
     public function createCriteria($id, $warmupClass)
     {
         $id = (string)$id;
-        /*
-        $colName = $this->getCache()->getName() . "_items";
-        $this->getDb()->selectCollection($colName)->ensureIndex([$id => 1], ['name' => $id . "_index"]);
-        */
         $this->getCache()->getJobs()->add(Jobs::CREATE_CRITERIA, ['id' => $id]);
         $this->getDb()->TCacheCriterias->insert(['cache_name' => $this->getCache()->getName(), 'sid' => $id, 'class' => $warmupClass]);
         return $this->getDb()->TCacheCriterias->findOne(['cache_name' => $this->getCache()->getName(), 'sid' => $id]);
@@ -57,11 +53,6 @@ class MongoStorage extends AbstractStorage
     public function dropCriteria($id)
     {
         $id = (string)$id;
-
-        /*
-        $colName = $this->getCache()->getName() . "_items";
-        $this->getDb()->selectCollection($colName)->deleteIndex($id . "_index");
-        */
 
         $this->getDb()->TCacheCriterias->remove(['cache_name' => $this->getCache()->getName(), 'sid' => $id]);
         $this->getCache()->getJobs()->add(Jobs::DROP_CRITERIA, ['id' => $id]);
@@ -100,8 +91,10 @@ class MongoStorage extends AbstractStorage
     public function createValue($criteria_id, $value_sid, $value_text)
     {
         $criteria_id = (string)$criteria_id;
-        $value_sid = (string)$value_sid;
-        $value_text = (string)$value_text;
+        $criteria = $this->getCache()->getCriterias()->get($criteria_id);
+        $value_sid = $criteria->getValuesBuilder()->castValueSid($value_sid);
+        $value_text = $criteria->getValuesBuilder()->castValueText($value_text);
+
         $this->getDb()->TCacheValues->insert(['cache_name' => $this->getCache()->getName(), 'criteria_id' => $criteria_id, 'sid' => $value_sid, 'text' => $value_text]);
         return $this->getDb()->TCacheValues->findOne(['cache_name' => $this->getCache()->getName(), 'criteria_id' => $criteria_id, 'sid' => $value_sid]);
     }
@@ -109,7 +102,8 @@ class MongoStorage extends AbstractStorage
     public function dropValue($criteria_id, $value_sid)
     {
         $criteria_id = (string)$criteria_id;
-        $value_sid = (string)$value_sid;
+        $criteria = $this->getCache()->getCriterias()->get($criteria_id);
+        $value_sid = $criteria->getValuesBuilder()->castValueSid($value_sid);
         $this->getDb()->TCacheValues->remove(['cache_name' => $this->getCache()->getName(), 'criteria_id' => $criteria_id, 'sid' => $value_sid]);
     }
 
@@ -207,14 +201,16 @@ class MongoStorage extends AbstractStorage
                 $c[$csid][] = $vsid;
             }
             foreach ($c as $field => $item_values) {
+                $criteria = $this->getCache()->getCriterias()->get($field);
                 $tmp = null;
                 if (is_array($item_values)) {
                     if (count($item_values) > 1) {
-                        $tmp = ['$in' => array_map(function ($v) {
-                            return (string)$v;
+                        $tmp = ['$in' => array_map(function ($v) use ($criteria) {
+                            $v = $criteria->getValuesBuilder()->castValueSid($v);
+                            return $v;
                         }, $item_values)];
                     } else {
-                        $tmp = (string)$item_values[0];
+                        $tmp = $criteria->getValuesBuilder()->castValueSid($item_values[0]);
                     }
                 }
                 if (!is_null($tmp)) {
