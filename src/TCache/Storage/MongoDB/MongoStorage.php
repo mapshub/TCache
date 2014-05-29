@@ -36,6 +36,12 @@ class MongoStorage extends AbstractStorage
         return $this->cache;
     }
 
+    public function getItemsCollection()
+    {
+        $colName = $this->getCache()->getName() . "_items";
+        return $this->getDb()->selectCollection($colName);
+    }
+
     public function getCriteriasList()
     {
         return $this->getDb()->TCacheCriterias->find(['cache_name' => $this->getCache()->getName()]);
