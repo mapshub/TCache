@@ -64,13 +64,11 @@ class ValuesBuilder
 
     public function castValueSid($id)
     {
-        //echo "(" . gettype($id) . ")" . $id . "=>";
         if (gettype($id) == "double") {
             $id = $this->getNumconverter()->format($id);
         } else {
             settype($id, "string");
         }
-        //echo "(" . gettype($id) . ")" . $id . "\n";
         return $id;
     }
 

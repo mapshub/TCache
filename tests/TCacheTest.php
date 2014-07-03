@@ -85,7 +85,9 @@ class TCacheTest extends \PHPUnit_Framework_TestCase
     public function testGetCriteria()
     {
         $guertsy = $this->getCache()->setName("test_6")->getCriterias()->add("guertsy");
+        $guertsy->getCache()->getJobs(); //для одинаковости далее
         $guertsy_get = $this->getCache()->setName("test_6")->getCriterias()->get("guertsy");
+        $guertsy_get->getCache()->getJobs(); //для одинаковости далее
         $this->assertEquals($guertsy, $guertsy_get);
     }
 
@@ -124,8 +126,15 @@ class TCacheTest extends \PHPUnit_Framework_TestCase
         $sex->getValuesBuilder();
         $values = $sex->getValues();
 
-        $this->assertEquals($male, $values->get('M'));
-        $this->assertEquals($female, $values->get('F'));
+        $male_new = $values->get('M');
+        $male_new->getCriteria()->getCache()->getJobs(); //для одинаковости далее
+        $female_new = $values->get('F');
+        $female_new->getCriteria()->getCache()->getJobs(); //для одинаковости далее
+
+        $this->assertEquals($male->getSid(), $male_new->getSid());
+        $this->assertEquals($male->getText(), $male_new->getText());
+        $this->assertEquals($female->getSid(), $female_new->getSid());
+        $this->assertEquals($female->getText(), $female_new->getText());
     }
 
     public function testDropValues()
@@ -279,7 +288,7 @@ class TCacheTest extends \PHPUnit_Framework_TestCase
         $items->add('m101-1', ['sex' => 'M', 'sex_text' => 'Male', 'name' => 'Jo', 'country' => 'china', 'count' => ceil(2458 / 100) / 10]);
         $items->add('m101-2', ['sex' => 'M', 'sex_text' => 'Male', 'name' => 'Jo', 'country' => 'china', 'count' => (0.1 + 0.7) * 10]);
         $items->add('m102', ['sex' => 'M', 'sex_text' => 'Male', 'name' => 'Li', 'country' => 'china', 'count' => 10 / 300000000]);
-        $items->add('m103', ['sex' => 'F', 'sex_text' => 'Female', 'name' => 'Mae', 'country' => 'hong kong']);
+        $items->add('m103', ['sex' => 'F', 'sex_text' => 'Female', 'name' => 'Mae', 'country' => 'hong kong', 'count' => '']);
 
 
         $cache->getJobs()->makeAll();
@@ -320,6 +329,24 @@ class TCacheTest extends \PHPUnit_Framework_TestCase
             var_dump([$value->getSid(), $value->getText()]);
         }
 
+    }
+
+    public function testArrayValuesBase()
+    {
+        $cache = $this->getCache()->setName("test_19_array");
+        $cache->dropAll();
+
+        $producers = $cache->getCriterias()->add("producers");
+        $producers->setArrayType(true);
+    }
+
+
+    public function testDropDatabase()
+    {
+        $cache = $this->getCache();
+
+        $db = $cache->getStorage()->getDb();
+        $db->drop();
     }
 }
  
